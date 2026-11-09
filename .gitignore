@@ -7,3 +7,5 @@
 
 build
 CMakeUserPresets.json
+/rust/target/
+/tests/interop/__pycache__/
