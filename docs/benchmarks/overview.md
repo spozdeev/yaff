@@ -7,6 +7,11 @@ The suite covers two axes:
 - [Read Access](access.md) — the cost of reading fields out of a serialized buffer, for both flat messages and a chain of nested messages.
 - [Serialized Size](space.md) — how many bytes a message occupies on the wire, across a range of field counts and population densities.
 
+The [C++/Rust read comparison](../../README.md#rust-read-performance) reports the
+checked and trusted Rust APIs on the same C++-generated buffers, with separate
+construction and array-index costs. Its portable runner is documented in the
+[Rust README](../../rust/README.md#read-benchmarks).
+
 ## Environment
 
 The benchmarks are built with [google/benchmark](https://github.com/google/benchmark) in a Release build. Measurements were taken on the following configurations:

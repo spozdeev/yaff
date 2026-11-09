@@ -1,0 +1,56 @@
+name: Rust interoperability
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  cpp-rust:
+    runs-on: ubuntu-24.04
+    env:
+      RUSTUP_TOOLCHAIN: "1.85.0"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain and Conan
+        run: |
+          rustup toolchain install 1.85.0 --profile minimal --component clippy --component rustfmt
+          python3 -m venv .venv
+          .venv/bin/pip install "conan>=2,<3"
+          echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+      - name: Resolve C++ dependencies
+        run: |
+          conan profile detect --force
+          conan install . --output-folder=build/rust-ci --build=missing \
+            -s compiler.cppstd=20 -s build_type=Release -o build_tests=True
+      - name: Build C++ and generators
+        run: |
+          cmake -S . -B build/local -DCMAKE_BUILD_TYPE=Release -DYAFF_BUILD_TESTS=ON \
+            -DCMAKE_TOOLCHAIN_FILE="$PWD/build/rust-ci/build/Release/generators/conan_toolchain.cmake"
+          cmake --build build/local --parallel 4
+          echo "PROTOC=$(cat build/local/tests/interop/protoc-path.txt)" >> "$GITHUB_ENV"
+      - name: Existing C++ tests
+        run: ctest --test-dir build/local --output-on-failure
+      - name: Cross-language tests and mutation fuzzing
+        run: python3 tests/interop/check.py --build-dir build/local
+      - name: Rust formatting and lints
+        working-directory: rust
+        run: |
+          cargo fmt --all --check
+          cargo clippy --offline --workspace --all-targets -- -D warnings
+          cargo test --offline -p yaff --no-default-features
+
+  trusted-memory:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Miri
+        run: rustup toolchain install nightly --profile minimal --component miri --component rust-src
+      - name: Prepare Miri
+        working-directory: rust
+        run: cargo +nightly miri setup
+      - name: Check trusted pointer access
+        working-directory: rust
+        env:
+          MIRIFLAGS: "-Zmiri-disable-isolation -Zmiri-strict-provenance"
+        run: cargo +nightly miri test --offline -p yaff --features trusted --test trusted

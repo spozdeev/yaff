@@ -37,3 +37,6 @@ target_link_libraries(yaff_interop_schemas PUBLIC yaff::core yaff::proto)
 
 add_executable(yaff_generated_interop generated.cpp)
 target_link_libraries(yaff_generated_interop PRIVATE yaff_interop_schemas)
+
+add_executable(yaff_interop_bench EXCLUDE_FROM_ALL bench.cpp)
+target_link_libraries(yaff_interop_bench PRIVATE yaff_interop_schemas)

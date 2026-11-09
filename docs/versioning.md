@@ -4,7 +4,7 @@ This page describes how YaFF is versioned and what stability to expect between r
 
 ## Numbering Scheme
 
-YaFF's version is `major.minor.patch`, read from the `VERSION` file at the repository root. The scheme leaves room for full [semantic versioning](https://semver.org), but YaFF is still pre-`1.0.0`: with only a C++ support today, the interface may still change as development continues.
+YaFF's version is `major.minor.patch`, read from the `VERSION` file at the repository root. The scheme leaves room for full [semantic versioning](https://semver.org), but YaFF is still pre-`1.0.0`: the C++ and Rust interfaces may still change as development continues.
 
 ## Matching the Support Library and Generated Code
 
