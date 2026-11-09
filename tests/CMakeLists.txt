@@ -9,6 +9,7 @@ add_library(yaff_test_protoyaff STATIC
     protoyaff/proto_api.proto
     protoyaff/proto2.proto
     protoyaff/proto3.proto
+    protoyaff/default_values.proto
 )
 
 protobuf_generate(
@@ -47,6 +48,7 @@ yaff_add_unit_test(proto_api.cpp)
 yaff_add_unit_test(fixed_message.cpp)
 yaff_add_unit_test(flat_message.cpp)
 yaff_add_unit_test(sparse_message.cpp)
+yaff_add_unit_test(default_values.cpp)
 
 add_executable(yaff_ir_processor_test ir_processor.cpp)
 target_link_libraries(yaff_ir_processor_test

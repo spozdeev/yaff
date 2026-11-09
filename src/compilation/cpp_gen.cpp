@@ -14,6 +14,25 @@ using namespace std::placeholders;
 
 namespace yaff::compilation {
 
+static std::string CppDefaultLiteral(Type type, const std::string& value) {
+    if (type == Type::TYPE_STRING) {
+        std::string result = "\"";
+        for (const unsigned char c : value) {
+            result += '\\';
+            result += static_cast<char>('0' + (c >> 6));
+            result += static_cast<char>('0' + ((c >> 3) & 7));
+            result += static_cast<char>('0' + (c & 7));
+        }
+        return result + '"';
+    }
+    if (type == Type::TYPE_INT64) {
+        return value == "-9223372036854775808" ? "(-9223372036854775807LL - 1LL)" : value + "LL";
+    }
+    if (type == Type::TYPE_UINT64) return value + "ULL";
+    if (type == Type::TYPE_UINT32) return value + "U";
+    return value;
+}
+
 static bool IsSizeableField(const ir::MessageDef::FieldDef& field) {
     return field.Type->Type == Type::TYPE_ARRAY && !ir::IsAssociative(*field.Type) &&
            !ir::IsSequentialMessage(*field.Type);
@@ -1464,15 +1483,15 @@ std::string CppGenerator::Impl::GenerateDefaultDescriptor(const ir::TypeDef& typ
         case Type::TYPE_UINT32:
             return "{.Uint32 = " + *defaultPtr + "}";
         case Type::TYPE_INT64:
-            return "{.Int64 = " + *defaultPtr + "}";
+            return "{.Int64 = " + CppDefaultLiteral(type.Type, *defaultPtr) + "}";
         case Type::TYPE_UINT64:
-            return "{.Uint64 = " + *defaultPtr + "}";
+            return "{.Uint64 = " + CppDefaultLiteral(type.Type, *defaultPtr) + "}";
         case Type::TYPE_FLOAT:
             return "{.Float = " + *defaultPtr + "}";
         case Type::TYPE_DOUBLE:
             return "{.Double = " + *defaultPtr + "}";
         case Type::TYPE_STRING:
-            return "{.String = \"" + *defaultPtr + "\"}";
+            return "{.String = " + CppDefaultLiteral(type.Type, *defaultPtr) + "}";
         case Type::TYPE_ENUM: {
             const std::string value = GenerateTypeCastInternal(type, GenerateTypeExternal(type) + "::" + *defaultPtr);
             return "{.Int32 = " + value + "}";
@@ -1606,7 +1625,9 @@ std::string CppGenerator::Impl::GenerateDefaultValueExternal(const ir::MessageDe
         }
         case Type::TYPE_STRING: {
             const std::string* defaultPtr = FindKey(fieldDef.Type->Modifiers, ir::DEFAULT_MODIFIER_NAME);
-            return (defaultPtr ? "\"" + *defaultPtr + "\"" : "\"\"");
+            return defaultPtr ? "std::string_view{" + CppDefaultLiteral(Type::TYPE_STRING, *defaultPtr) + ", " +
+                                    std::to_string(defaultPtr->size()) + "}"
+                              : "\"\"";
         }
         default: {
             return GenerateDefaultValueInternal(fieldDef);
@@ -1641,7 +1662,8 @@ std::string CppGenerator::Impl::GenerateDefaultValueInternal(const ir::MessageDe
                    "()";
         default: {
             const std::string* defaultPtr = FindKey(fieldDef.Type->Modifiers, ir::DEFAULT_MODIFIER_NAME);
-            return (defaultPtr ? *defaultPtr : GenerateBasicDefault(fieldDef.Type->Type));
+            return (defaultPtr ? CppDefaultLiteral(fieldDef.Type->Type, *defaultPtr)
+                               : GenerateBasicDefault(fieldDef.Type->Type));
         }
     }
 }

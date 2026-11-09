@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package test;
+
+message DefaultValues {
+    optional int64 min_i64 = 1 [default = -9223372036854775808];
+    optional uint64 max_u64 = 2 [default = 18446744073709551615];
+    optional uint32 max_u32 = 3 [default = 4294967295];
+    optional string text = 4 [default = "quoted \"value\"\\path\n"];
+    optional bytes raw = 5 [default = "\000\377"];
+}
