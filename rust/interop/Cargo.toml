@@ -1,0 +1,11 @@
+[package]
+name = "yaff-interop"
+version.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+yaff = { path = "../yaff", features = ["trusted"] }
+
+[build-dependencies]
+yaff-build = { path = "../yaff-build" }

@@ -25,3 +25,15 @@ install(TARGETS yaff_protoc_plugin
     EXPORT YaFFTargets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+add_executable(yaff_rust_protoc_plugin rust_plugin.cpp)
+add_executable(yaff::rust_protoc_plugin ALIAS yaff_rust_protoc_plugin)
+set_target_properties(yaff_rust_protoc_plugin PROPERTIES
+    OUTPUT_NAME protoc-gen-yaff-rust
+    EXPORT_NAME rust_protoc_plugin
+)
+target_link_libraries(yaff_rust_protoc_plugin PRIVATE yaff::compilation protobuf::libprotoc)
+install(TARGETS yaff_rust_protoc_plugin
+    EXPORT YaFFTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)

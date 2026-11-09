@@ -5,3 +5,15 @@ version = 4
 [[package]]
 name = "yaff"
 version = "0.1.0"
+
+[[package]]
+name = "yaff-build"
+version = "0.1.0"
+
+[[package]]
+name = "yaff-interop"
+version = "0.1.0"
+dependencies = [
+ "yaff",
+ "yaff-build",
+]

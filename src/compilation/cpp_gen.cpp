@@ -192,11 +192,7 @@ private:
         }
     };
 
-    struct MessageMeta {
-        std::vector<FieldOffset> FlatOffsets;
-        std::vector<FieldId> DeletedIds;
-        std::vector<bool> StaticFlags;
-    };
+    using MessageMeta = ir::MessageMeta;
 
     using MessageLayoutGenerator = std::function<void(MessageType, const ir::MessageDef&)>;
 
@@ -1941,22 +1937,7 @@ std::string CppGenerator::Impl::GetNestedLocalName(const std::string& parentName
 }
 
 CppGenerator::Impl::MessageMeta CppGenerator::Impl::GenerateMessageMeta(const ir::MessageDef& msg) {
-    MessageMeta meta;
-    const size_t maxId = ir::MaxFieldId(msg);
-    meta.FlatOffsets.reserve(maxId);
-    meta.StaticFlags.reserve(maxId);
-    for (size_t i = 1, j = 0; i <= maxId; ++i) {
-        const auto& fieldDef = msg.Fields[j];
-        meta.FlatOffsets.emplace_back(fieldDef.FlatOffset);
-        meta.StaticFlags.emplace_back(meta.DeletedIds.empty());
-        if (fieldDef.Id != i) {
-            meta.DeletedIds.emplace_back(i);
-        } else {
-            ++j;
-        }
-    }
-    meta.FlatOffsets.emplace_back(ir::MaxMessageSize(msg));
-    return meta;
+    return ir::GenerateMessageMeta(msg);
 }
 
 CppGenerator::CppGenerator(std::ostream& out, CppGenerationOptions opts)

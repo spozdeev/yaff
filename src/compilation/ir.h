@@ -91,6 +91,9 @@ struct MessageDef : public BaseDef {
 
         std::string OneOf;
 
+        // Source-level string semantics; string and bytes share the same wire type.
+        bool Utf8 = false;
+
         // These fields are filled during post-processing of the IR.
         uint64_t ActiveIndex = 0;
         uint64_t FlatOffset = 0;
@@ -164,6 +167,14 @@ size_t InlineSize(const Type type);
 
 size_t MaxMessageSize(const MessageDef& msg);
 size_t MaxFieldId(const MessageDef& msg);
+
+struct MessageMeta {
+    std::vector<FieldOffset> FlatOffsets;
+    std::vector<FieldId> DeletedIds;
+    std::vector<bool> StaticFlags;
+};
+
+MessageMeta GenerateMessageMeta(const MessageDef& msg);
 
 bool IsFixedMessage(const MessageDef& msg);
 bool IsDynamicMessage(const MessageDef& msg);

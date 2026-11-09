@@ -347,6 +347,7 @@ const ir::MessageDef* TProtobufBuilder::TraverseMessage(const google::protobuf::
             .Type = fieldType,
             .Presence = (field->has_presence() ? Presence::PRESENCE_EXPLICIT : Presence::PRESENCE_IMPLICIT),
             .OneOf = (field->real_containing_oneof() ? AdaptString(field->real_containing_oneof()->name()) : ""),
+            .Utf8 = field->type() == google::protobuf::FieldDescriptor::TYPE_STRING,
         });
 
         knownIds.emplace(target.Id);
@@ -646,9 +647,20 @@ ProtobufReflectionFrontEnd::ProtobufReflectionFrontEnd(const google::protobuf::F
     : Descriptors_(), FileDescriptor_(descriptor), Traits_(std::move(traits)), Opts_(std::move(opts)) {
 }
 
+ProtobufReflectionFrontEnd::ProtobufReflectionFrontEnd(
+    const std::vector<const google::protobuf::FileDescriptor*>& files, std::unique_ptr<ProtobufReflectionTraits> traits,
+    ProtobufReflectionFrontEndOptions opts)
+    : FileDescriptor_(nullptr), Files_(files), Traits_(std::move(traits)), Opts_(std::move(opts)) {
+}
+
 ir::IR ProtobufReflectionFrontEnd::Parse() {
     TProtobufBuilder builder{Traits_.get(), Opts_};
-    if (FileDescriptor_) {
+    if (!Files_.empty()) {
+        for (const auto* file : Files_) {
+            YAFF_REQUIRE(file);
+            builder.AddDescriptor(*file);
+        }
+    } else if (FileDescriptor_) {
         builder.AddDescriptor(*FileDescriptor_);
     } else {
         for (const auto* descriptor : Descriptors_) {

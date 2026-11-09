@@ -1,0 +1,94 @@
+syntax = "proto3";
+package interop;
+
+import "yaff/proto/options.proto";
+import "google/protobuf/timestamp.proto";
+import "defaults.proto";
+
+enum State {
+    option allow_alias = true;
+    UNKNOWN = 0;
+    UNKNOWN_ALIAS = 0;
+    ACTIVE = 1;
+}
+
+message Point {
+    option (yaff.proto.message) = {layout: LAYOUT_FIXED};
+    double x = 1;
+    double y = 2;
+}
+
+message Child {
+    optional string note = 1;
+    optional uint64 counter = 2;
+}
+
+message Sparse {
+    option (yaff.proto.message) = {layout: LAYOUT_SPARSE};
+    int32 first = 1;
+    bool tiny_last = 31;
+    uint64 wide_first = 32;
+    int32 last = 8190;
+}
+
+message Node {
+    int32 value = 1;
+    Node next = 2;
+}
+
+message Everything {
+    int64 id = 1;
+    optional uint32 zero = 2;
+    string text = 3;
+    bytes payload = 4;
+    State state = 5;
+    Child child = 6;
+    repeated int32 numbers = 7;
+    repeated string words = 8;
+    repeated bytes blobs = 9;
+    repeated State states = 10;
+    repeated Child children = 11;
+    repeated Point points = 12;
+    map<string, Child> lookup = 13;
+    map<int32, string> labels = 14;
+    oneof choice {
+        uint32 zero_choice = 15;
+        string text_choice = 16;
+    }
+    Defaults defaults = 17;
+    Sparse sparse = 18;
+    Point point = 19;
+    repeated bool flags = 20;
+    bool enabled = 21;
+    double large = 22;
+    float small = 23;
+    repeated double doubles = 24;
+    google.protobuf.Timestamp timestamp = 25;
+    Node node = 26;
+}
+
+message Sliced {
+    option (yaff.proto.message) = {slice_name: "light"};
+    uint64 id = 100 [(yaff.proto.field) = {slice_name: "light", id: 1}];
+    string extra = 2;
+}
+
+// Valid Rust keyword and generated-helper collisions must still compile.
+message type {
+    optional uint32 self = 1;
+    optional uint32 read = 2;
+    optional uint32 fields = 3;
+}
+message typeBuilder { }
+
+message OldShape {
+    uint64 first = 1;
+    uint32 retired = 2;
+    uint64 tail = 3;
+}
+message NewShape {
+    uint64 first = 1;
+    reserved 2;
+    uint64 tail = 3;
+    string added = 4;
+}

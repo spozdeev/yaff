@@ -1,5 +1,6 @@
 [workspace]
-members = ["yaff"]
+members = ["yaff", "yaff-build", "interop"]
+default-members = ["yaff", "yaff-build"]
 resolver = "2"
 
 [workspace.package]

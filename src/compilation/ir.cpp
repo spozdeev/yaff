@@ -36,6 +36,25 @@ size_t MaxFieldId(const MessageDef& msg) {
     return last.Id;
 }
 
+MessageMeta GenerateMessageMeta(const MessageDef& msg) {
+    MessageMeta meta;
+    const size_t maxId = MaxFieldId(msg);
+    YAFF_REQUIRE(maxId <= 8190);
+    YAFF_REQUIRE(MaxMessageSize(msg) <= std::numeric_limits<FieldOffset>::max());
+    for (size_t i = 1, j = 0; i <= maxId; ++i) {
+        const auto& field = msg.Fields[j];
+        meta.FlatOffsets.emplace_back(field.FlatOffset);
+        meta.StaticFlags.emplace_back(meta.DeletedIds.empty());
+        if (field.Id != i) {
+            meta.DeletedIds.emplace_back(i);
+        } else {
+            ++j;
+        }
+    }
+    meta.FlatOffsets.emplace_back(MaxMessageSize(msg));
+    return meta;
+}
+
 size_t InlineSize(const Type type) {
     switch (type) {
         case Type::TYPE_NONE:

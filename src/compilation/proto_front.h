@@ -79,11 +79,16 @@ public:
         std::unique_ptr<ProtobufReflectionTraits> traits = std::make_unique<DefaultProtobufReflectionTraits>(),
         ProtobufReflectionFrontEndOptions opts = {});
 
+    ProtobufReflectionFrontEnd(const std::vector<const google::protobuf::FileDescriptor*>& files,
+                               std::unique_ptr<ProtobufReflectionTraits> traits,
+                               ProtobufReflectionFrontEndOptions opts = {});
+
     ir::IR Parse() override;
 
 private:
     std::vector<const google::protobuf::Descriptor*> Descriptors_;
     const google::protobuf::FileDescriptor* FileDescriptor_;
+    std::vector<const google::protobuf::FileDescriptor*> Files_;
     std::unique_ptr<ProtobufReflectionTraits> Traits_;
     ProtobufReflectionFrontEndOptions Opts_;
 };

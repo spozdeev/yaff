@@ -1,0 +1,14 @@
+syntax = "proto2";
+package interop;
+
+message Defaults {
+    optional int32 signed32 = 1 [default = -123];
+    optional uint32 unsigned32 = 2 [default = 4294967295];
+    optional int64 signed64 = 3 [default = -9223372036854775808];
+    optional uint64 unsigned64 = 4 [default = 18446744073709551615];
+    optional float single = 5 [default = 0.1234];
+    optional double real = 6 [default = 0.000001];
+    optional bool flag = 7 [default = true];
+    optional string text = 8 [default = "hello"];
+    optional bytes raw = 9 [default = "\000\377"];
+}

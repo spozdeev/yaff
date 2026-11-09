@@ -57,3 +57,5 @@ target_link_libraries(yaff_ir_processor_test
         GTest::gtest_main
 )
 add_test(NAME yaff_ir_processor_test COMMAND yaff_ir_processor_test)
+
+add_subdirectory(interop)

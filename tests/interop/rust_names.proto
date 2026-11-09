@@ -1,0 +1,11 @@
+syntax = "proto3";
+package rustnames;
+
+message Vec { uint32 value = 1; }
+message Option { optional uint32 value = 1; }
+message Some { string value = 1; }
+message None { repeated uint32 value = 1; }
+message Default { uint32 value = 1; }
+message i32 { int32 value = 1; }
+message Ok { uint32 value = 1; }
+message Err { uint32 value = 1; }

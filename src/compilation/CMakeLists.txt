@@ -7,6 +7,7 @@ set(YAFF_COMPILATION_SOURCES
     ir_processor.cpp
     ir_reflect.cpp
     proto_front.cpp
+    rust_gen.cpp
     util.cpp
 )
 
